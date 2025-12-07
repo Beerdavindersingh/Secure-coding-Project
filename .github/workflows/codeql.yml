@@ -1,0 +1,49 @@
+name: "CodeQL Analysis"
+ 
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+ 
+jobs:
+  analyze:
+    name: Analyze JS/TS
+    runs-on: ubuntu-latest
+ 
+    permissions:
+      security-events: write
+      contents: read
+ 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+ 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+ 
+      - name: Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm install || true
+          fi
+ 
+      - name: Build project (if needed)
+        run: |
+          if [ -f package.json ]; then
+            npm run build || true
+          fi
+ 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          build-mode: autobuild
+ 
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+ 
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
